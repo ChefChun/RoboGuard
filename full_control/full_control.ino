@@ -5,6 +5,7 @@
 #include"tracking.h"
 #include"avoid.h"
 #include"pid.h"
+#include"autoDrive.h"
 
 Servo horizontal_servo;
 Servo plane_servo;
@@ -13,10 +14,12 @@ int targetSpeed = 120;
 const int DEFAULT_SPEED = 120;
 String currentCommand = "S";
 unsigned long lastStatus = 0;
+unsigned long lastAutoAction = 0;
 unsigned long current = 0;
-bool autoMode = false;
-bool TrackingMode = false;
+bool autoMode = true;
+bool TrackingMode = true;
 const unsigned long statusInterval = 1000; // 1秒
+const unsigned long autoInterval = 200;
 
 
 class Aimer {
@@ -107,19 +110,20 @@ void setup() {
 
 void loop()
 {
-    if (Serial.available()) {
+    if (Serial.available()){
         processSerialInput();
-        if (autoMode) {
-            // autoDrive();
-            //here autoDrive is a combination of avoiding and tracking
-            //not done yet
-        }
     }
     current = millis();
     if (current - lastStatus >= statusInterval) {
         sendStatus();
         lastStatus = current;
     }
+    if (autoMode && current - lastAutoAction >= autoInterval) {
+            autoDrive();
+            lastAutoAction = current;
+            //here autoDrive is a combination of avoiding and tracking
+            //not done yet
+        }
     updatePID();
 }
 
@@ -166,7 +170,7 @@ void handleCommand(String cmd) {
     Serial.println("Switching to auto mode");
     return;
   } else {
-    autoMode = false; // 任何手动命令都退出自动驾驶
+    autoMode = false;
   }
   if (cmd == "F") {
     setMotorsForward(targetSpeed > 0 ? targetSpeed : DEFAULT_SPEED);

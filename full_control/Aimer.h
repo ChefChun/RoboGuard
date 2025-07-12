@@ -1,0 +1,2 @@
+#ifndef AIMING
+#define AIMING

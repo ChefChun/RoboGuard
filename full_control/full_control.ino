@@ -68,10 +68,10 @@ const int TRIG_PIN_R = 28;
 const int ECHO_PIN_R = 29;
 
 //encoder pins
-const int ENCODER_LF = 18; // 左前
-const int ENCODER_RF = 19; // 右前
-const int ENCODER_LB = 20; // 左后
-const int ENCODER_RB = 21; // 右后
+const int ENCODER_LF = 14; // 左前
+const int ENCODER_RF = 15; // 右前
+const int ENCODER_LB = 16; // 左后
+const int ENCODER_RB = 17; // 右后
 
 volatile long countLF = 0, countRF = 0, countLB = 0, countRB = 0;
 

@@ -5,46 +5,52 @@ void Avoid() {
   long distM = readDistanceCM(TRIG_PIN_M, ECHO_PIN_M);
   long distR = readDistanceCM(TRIG_PIN_R, ECHO_PIN_R);
 
-  const int SAFE_DIST = 25; // 安全距离cm
+  const int SAFE_DIST = 35; // 安全距离cm
+
+  const int TURN_SPEED = 255;
+  const int BACK_SPEED = 200;
+  const int BACK_TIME = 700;   // ms
+  const int TURN_TIME = 900;   // ms
+  const int PAUSE_TIME = 120;  // ms
 
   if (distM > 0 && distM < SAFE_DIST) {
     // 前方有障碍
     stopAllMotors();
-    delay(100);
-    setMotorsBackward(targetSpeed);
-    delay(300);
+    delay(PAUSE_TIME);
+    backwardInPlace(targetSpeed);
+    delay(BACK_TIME);
     stopAllMotors();
-    delay(100);
+    delay(PAUSE_TIME);
 
     // 判断左右哪边更通畅
     if ((distL > distR && distL > SAFE_DIST) || (distR < SAFE_DIST && distL > SAFE_DIST)) {
-      setMotorsTurnLeft(targetSpeed);
-      delay(1000);
+      turnLeftInPlace(TURN_SPEED);
+      delay(TURN_TIME);
     } else if ((distR > distL && distR > SAFE_DIST) || (distL < SAFE_DIST && distR > SAFE_DIST)) {
-      setMotorsTurnRight(targetSpeed);
-      delay(1000);
+      turnRightInPlace(TURN_SPEED);
+      delay(TURN_TIME);
     } else {
       // 两边都不通，原地多转一会
-      setMotorsTurnLeft(targetSpeed);
-      delay(2000);
+      setMotorsTurnLeft(TURN_SPEED);
+      delay(TURN_TIME * 1.5);
     }
     stopAllMotors();
-    delay(100);
+    delay(PAUSE_TIME);
   } else if (distL > 0 && distL < SAFE_DIST) {
     // 左侧有障碍，右转
-    setMotorsTurnRight(targetSpeed);
-    delay(1000);
+    setMotorsTurnRight(TURN_SPEED);
+    delay(TURN_TIME/1.5);
     stopAllMotors();
-    delay(50);
+    delay(PAUSE_TIME);
   } else if (distR > 0 && distR < SAFE_DIST) {
     // 右侧有障碍，左转
-    setMotorsTurnLeft(targetSpeed);
-    delay(1000);
+    setMotorsTurnLeft(TURN_SPEED);
+    delay(TURN_TIME / 1.5);
     stopAllMotors();
-    delay(50);
+    delay(PAUSE_TIME);
   } else {
     // 前方畅通
-    setMotorsForward(targetSpeed);
+    setMotorsForward(180);
   }
 } 
 

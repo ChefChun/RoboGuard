@@ -4,6 +4,7 @@
 #include"steering_utils.h"
 #include"tracking.h"
 #include"avoid.h"
+#include"pid.h"
 
 Servo horizontal_servo;
 Servo plane_servo;
@@ -63,6 +64,24 @@ const int ECHO_PIN_M = 25;
 const int TRIG_PIN_R = 28;
 const int ECHO_PIN_R = 29;
 
+//encoder pins
+const int ENCODER_LF = 18; // 左前
+const int ENCODER_RF = 19; // 右前
+const int ENCODER_LB = 20; // 左后
+const int ENCODER_RB = 21; // 右后
+
+volatile long countLF = 0, countRF = 0, countLB = 0, countRB = 0;
+
+//PID parameters
+float Kp = 1.2, Ki = 0.05, Kd = 0.1;
+float integralLF = 0, lastErrLF = 0;
+float integralRF = 0, lastErrRF = 0;
+float integralLB = 0, lastErrLB = 0;
+float integralRB = 0, lastErrRB = 0;
+
+int targetSpeedLF = 0, targetSpeedRF = 0, targetSpeedLB = 0, targetSpeedRB = 0;
+int pwmLF = 0, pwmRF = 0, pwmLB = 0, pwmRB = 0;
+
 void setup() {
     Serial.begin(9600);
     Serial.println("System started.");
@@ -74,6 +93,16 @@ void setup() {
     pinMode(ECHO_PIN_M, INPUT);
     pinMode(TRIG_PIN_R, OUTPUT);
     pinMode(ECHO_PIN_R, INPUT);
+
+    pinMode(ENCODER_LF, INPUT_PULLUP);
+    pinMode(ENCODER_RF, INPUT_PULLUP);
+    pinMode(ENCODER_LB, INPUT_PULLUP);
+    pinMode(ENCODER_RB, INPUT_PULLUP);
+    //attaching interruptions
+    attachInterrupt(digitalPinToInterrupt(ENCODER_LF), encoderLF_ISR, RISING);
+    attachInterrupt(digitalPinToInterrupt(ENCODER_RF), encoderRF_ISR, RISING);
+    attachInterrupt(digitalPinToInterrupt(ENCODER_LB), encoderLB_ISR, RISING);
+    attachInterrupt(digitalPinToInterrupt(ENCODER_RB), encoderRB_ISR, RISING);
 }
 
 void loop()
@@ -91,7 +120,7 @@ void loop()
         sendStatus();
         lastStatus = current;
     }
-
+    updatePID();
 }
 
 void processSerialInput() {

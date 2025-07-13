@@ -1,6 +1,7 @@
 #ifndef TRACKING
 #define TRACKING
 #include"steering_utils.h"
+#include"pid.h"
 #include <Arduino.h>
 
 extern bool TrackingMode;

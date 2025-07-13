@@ -56,8 +56,8 @@ AF_DCMotor motorRF(3);
 AF_DCMotor motorLF(4);
 
 //tracking sensor
-const int TrackingPinLeft = 35;
-const int TrackingPinRight = 36;
+const int TrackingPinLeft = 39;
+const int TrackingPinRight = 35;
 
 //ultrasonic sensor pins
 const int TRIG_PIN_L = 26;

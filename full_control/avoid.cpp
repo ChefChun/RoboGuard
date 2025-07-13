@@ -11,7 +11,7 @@ void Avoid() {
   const int BACK_SPEED = 200;
   const int BACK_TIME = 400;   // ms
   const int TURN_TIME = 900;   // ms
-  const int PAUSE_TIME = 120;  // ms
+  const int PAUSE_TIME = 40;  // ms
 
   if (distM > 0 && distM < SAFE_DIST) {
     // 前方有障碍
@@ -51,21 +51,21 @@ void Avoid() {
   } else if (distL > 0 && distL < SAFE_DIST) {
     // 左侧有障碍，右转
       stopAllMotors();
-      delay(PAUSE_TIME/3);
+      delay(PAUSE_TIME);
       backwardInPlace(targetSpeed * 3 / 5);
-      delay(BACK_TIME/3);
+      delay(BACK_TIME);
     setMotorsTurnRight(TURN_SPEED);
-    delay(TURN_TIME/1.5);
+    delay(TURN_TIME);
     stopAllMotors();
     delay(PAUSE_TIME);
   } else if (distR > 0 && distR < SAFE_DIST) {
     // 右侧有障碍，左转
       stopAllMotors();
-      delay(PAUSE_TIME/3);
+      delay(PAUSE_TIME);
       backwardInPlace(targetSpeed * 3 / 5);
-      delay(BACK_TIME/3);
+      delay(BACK_TIME);
     setMotorsTurnLeft(TURN_SPEED);
-    delay(TURN_TIME / 1.5);
+    delay(TURN_TIME);
     stopAllMotors();
     delay(PAUSE_TIME);
   } else {

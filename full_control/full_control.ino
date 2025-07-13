@@ -6,6 +6,7 @@
 #include"avoid.h"
 #include"pid.h"
 #include"autoDrive.h"
+#include"Aimer.h"
 
 Servo horizontal_servo;
 Servo plane_servo;
@@ -17,34 +18,16 @@ unsigned long lastStatus = 0;
 unsigned long lastAutoAction = 0;
 unsigned long current = 0;
 bool autoMode = true;
-bool TrackingMode = true;
+bool TrackingMode = false;
+bool LockedOn = false;
 const unsigned long statusInterval = 1000; // 1秒
 const unsigned long autoInterval = 200;
 
-
-class Aimer {
-    Servo* horizontal;
-    Servo* plane;
-
-public:
-    Aimer(Servo* s1, Servo* s2) {
-        horizontal = s1;
-        plane = s2;
-    }
-
-    void setAngle(int x, int y) {
-        setHorizontalAngle(y);
-        setPlaneAngle(x);
-    }
-
-    void setHorizontalAngle(int angle) {
-        horizontal->write(angle);
-    }
-
-    void setPlaneAngle(int angle) {
-        plane->write(angle);
-    }
-};
+//These variables should be assigned value according to json file given.
+int target_x;
+int target_y;
+int target_w;
+int target_h;
 
 // Create an instance of Aimer with pointers
 Aimer platform(&horizontal_servo, &plane_servo);
@@ -106,6 +89,10 @@ void setup() {
     attachInterrupt(digitalPinToInterrupt(ENCODER_RF), encoderRF_ISR, RISING);
     attachInterrupt(digitalPinToInterrupt(ENCODER_LB), encoderLB_ISR, RISING);
     attachInterrupt(digitalPinToInterrupt(ENCODER_RB), encoderRB_ISR, RISING);
+    horizontal_servo.attach(9);
+    plane_servo.attach(10);
+    horizontal_servo.write(90);
+    plane_servo.write(90);
 }
 
 void loop()

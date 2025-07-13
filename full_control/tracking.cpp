@@ -5,13 +5,17 @@ void PoseAdjust()
     String offset = Offset();
     if (offset == "left")
     {
-        setMotorsTurnRight(targetSpeed);
-        delay(500);
+        stopAllMotors();
+        delay(120);
+        turnRightInPlace(255);
+        delay(900);
     }
     else if (offset == "right")
     {
-        setMotorsTurnLeft(targetSpeed);
-        delay(500);
+        stopAllMotors();
+        delay(120);
+        turnLeftInPlace(255);
+        delay(900);
     }
     else
     {

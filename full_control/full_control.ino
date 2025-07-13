@@ -11,7 +11,7 @@
 Servo horizontal_servo;
 Servo plane_servo;
 
-int targetSpeed = 120;
+int targetSpeed = 180;
 const int DEFAULT_SPEED = 120;
 String currentCommand = "S";
 unsigned long lastStatus = 0;

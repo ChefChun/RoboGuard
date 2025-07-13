@@ -24,10 +24,10 @@ const unsigned long statusInterval = 1000; // 1秒
 const unsigned long autoInterval = 200;
 
 //These variables should be assigned value according to json file given.
-int target_x;
-int target_y;
-int target_w;
-int target_h;
+int target_x1;
+int target_y1;
+int target_x2;
+int target_y2;
 
 // Create an instance of Aimer with pointers
 Aimer platform(&horizontal_servo, &plane_servo);
@@ -91,7 +91,7 @@ void setup() {
     attachInterrupt(digitalPinToInterrupt(ENCODER_RB), encoderRB_ISR, RISING);
     horizontal_servo.attach(9);
     plane_servo.attach(10);
-    horizontal_servo.write(90);
+    horizontal_servo.write(45);
     plane_servo.write(90);
 }
 

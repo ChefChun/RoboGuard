@@ -2,10 +2,10 @@
 
 extern bool LockedOn;
 extern bool TrackingMode;
-extern int target_x;
-extern int target_y;
-extern int target_w;
-extern int target_h;
+extern int target_x1;
+extern int target_y1;
+extern int target_x2;
+extern int target_y2;
 extern Aimer platform;
 
 void autoDrive()
@@ -21,10 +21,11 @@ void autoDrive()
         if (!LockedOn)
         {
             platform.Scan();
+            //if scanned, then LockedOn == true
         }
         else
         {
-            platform.Fix(target_x, target_y, target_w, target_h);
+            platform.Fix(target_x1, target_y1, target_x2, target_y2);
             platform.PoseSyn();
         }
     }

@@ -70,7 +70,7 @@ void Avoid() {
     delay(PAUSE_TIME);
   } else {
     // 前方畅通
-    setMotorsForward(180);
+    setMotorsForward(targetSpeed);
   }
 } 
 

@@ -7,6 +7,7 @@
 #include"pid.h"
 #include"autoDrive.h"
 #include"Aimer.h"
+#include "lcd_manager.h"
 
 Servo horizontal_servo;
 Servo plane_servo;
@@ -56,17 +57,25 @@ const int ENCODER_RF = 15; // 右前
 const int ENCODER_LB = 16; // 左后
 const int ENCODER_RB = 17; // 右后
 
+// 唯一全局变量定义区
+SystemStatus currentStatus = STATUS_PATROL;
+DisplayMode currentMode = MODE_MAIN;
 volatile long countLF = 0, countRF = 0, countLB = 0, countRB = 0;
-
-//PID parameters
 float Kp = 1.2, Ki = 0.05, Kd = 0.1;
 float integralLF = 0, lastErrLF = 0;
 float integralRF = 0, lastErrRF = 0;
 float integralLB = 0, lastErrLB = 0;
 float integralRB = 0, lastErrRB = 0;
-
 int targetSpeedLF = 0, targetSpeedRF = 0, targetSpeedLB = 0, targetSpeedRB = 0;
 int pwmLF = 0, pwmRF = 0, pwmLB = 0, pwmRB = 0;
+
+// LCD自动切换相关全局变量
+unsigned long lastDisplayUpdate = 0;
+unsigned long lastModeSwitch = 0;
+unsigned long autoSwitchInterval = 3000; // 3秒自动切换
+
+// 全局变量区
+int distL = 0, distM = 0, distR = 0;
 
 void setup() {
     Serial.begin(9600);
@@ -93,6 +102,8 @@ void setup() {
     plane_servo.attach(10);
     horizontal_servo.write(45);
     plane_servo.write(90);
+    // 集成LCD初始化
+    initLCDManager();
 }
 
 void loop()
@@ -112,6 +123,14 @@ void loop()
             //not done yet
         }
     updatePID();
+    // 集成LCD定时刷新
+    updateDisplay();
+  
+    distL = readDistanceCM(TRIG_PIN_L, ECHO_PIN_L);
+    distM = readDistanceCM(TRIG_PIN_M, ECHO_PIN_M);
+    distR = readDistanceCM(TRIG_PIN_R, ECHO_PIN_R);
+
+    setDisplayData(currentStatus, targetSpeed, distL, distM, distR);
 }
 
 void processSerialInput() {
@@ -152,6 +171,23 @@ void handleCommand(String cmd) {
   cmd.trim();
   cmd.toUpperCase();
   currentCommand = cmd;
+
+  // 新增：警报命令识别
+  if (cmd.startsWith("ALERT:")) {
+    String alertMsg = cmd.substring(6); // 获取警报内容
+    showEmergencyAlert(alertMsg.c_str()); // LCD优先显示警报
+    currentStatus = STATUS_ALERT;         // 切换主控状态为警告
+    Serial.println("警报已触发: " + alertMsg);
+    return;
+  }
+
+  // 你可以增加解除警报命令
+  if (cmd == "RESUME") {
+    currentStatus = STATUS_PATROL;
+    Serial.println("恢复巡逻状态");
+    return;
+  }
+
   if (cmd == "AUTO") {
     autoMode = true;
     Serial.println("Switching to auto mode");

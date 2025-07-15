@@ -1,9 +1,14 @@
 #include"pid.h"
 
-void encoderLF_ISR() { countLF++; }
-void encoderRF_ISR() { countRF++; }
-void encoderLB_ISR() { countLB++; }
-void encoderRB_ISR() { countRB++; }
+// 删除全局变量定义，改为extern声明
+extern volatile long countLF, countRF, countLB, countRB;
+extern float Kp, Ki, Kd;
+extern float integralLF, lastErrLF;
+extern float integralRF, lastErrRF;
+extern float integralLB, lastErrLB;
+extern float integralRB, lastErrRB;
+extern int targetSpeedLF, targetSpeedRF, targetSpeedLB, targetSpeedRB;
+extern int pwmLF, pwmRF, pwmLB, pwmRB;
 
 void turnLeftInPlace(int speed) {
   int pulse = map(speed, 0, 255, 0, 100);

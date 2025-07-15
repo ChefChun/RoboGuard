@@ -12,6 +12,7 @@
 Servo horizontal_servo;
 Servo plane_servo;
 
+const int FIRING_TIME = 2000; 
 int targetSpeed = 120;
 const int DEFAULT_SPEED = 120;
 String currentCommand = "S";
@@ -25,10 +26,13 @@ const unsigned long statusInterval = 1000; // 1秒
 const unsigned long autoInterval = 200;
 
 //These variables should be assigned value according to json file given.
-int target_x1;
-int target_y1;
-int target_x2;
-int target_y2;
+int target_x1 = 0;
+int target_y1 = 0;
+int target_x2 = 0;
+int target_y2 = 0;
+
+int angle = 0;
+int score = 0;
 
 // Create an instance of Aimer with pointers
 Aimer platform(&horizontal_servo, &plane_servo);
@@ -57,7 +61,11 @@ const int ENCODER_RF = 15; // 右前
 const int ENCODER_LB = 16; // 左后
 const int ENCODER_RB = 17; // 右后
 
+//laser pin
+const int LASER_PIN = 45;
+
 // 唯一全局变量定义区
+
 SystemStatus currentStatus = STATUS_PATROL;
 DisplayMode currentMode = MODE_MAIN;
 volatile long countLF = 0, countRF = 0, countLB = 0, countRB = 0;
@@ -88,11 +96,13 @@ void setup() {
     pinMode(ECHO_PIN_M, INPUT);
     pinMode(TRIG_PIN_R, OUTPUT);
     pinMode(ECHO_PIN_R, INPUT);
-
     pinMode(ENCODER_LF, INPUT_PULLUP);
     pinMode(ENCODER_RF, INPUT_PULLUP);
     pinMode(ENCODER_LB, INPUT_PULLUP);
     pinMode(ENCODER_RB, INPUT_PULLUP);
+    pinMode(LASER_PIN, OUTPUT);
+
+
     //attaching interruptions
     attachInterrupt(digitalPinToInterrupt(ENCODER_LF), encoderLF_ISR, RISING);
     attachInterrupt(digitalPinToInterrupt(ENCODER_RF), encoderRF_ISR, RISING);
@@ -163,6 +173,19 @@ void parseJsonCommand(String jsonStr) {
     targetSpeed = constrain(speed, 0, 255);
     Serial.print("setting target speed: ");
     Serial.println(targetSpeed);
+  }
+  if (doc.containsKey("trackingmode"))
+  {
+    score = doc["score"];
+    if (score > 0)
+    {
+      TrackingMode = false;
+      target_x1 = doc["x1"];
+      target_x2 = doc["x2"];
+      target_y1 = doc["y1"];
+      target_y2 = doc["y2"];
+      angle = doc["angle"];
+    }
   }
   Serial.println("JSON command parsed successfully");
 }
@@ -236,6 +259,12 @@ void sendStatus() {
   doc["command"] = currentCommand;
   doc["speed"] = targetSpeed;
   doc["timestamp"] = millis() / 1000;
+  doc["score"] = score;
+  doc["x1"] = target_x1;
+  doc["x2"] = target_x2;
+  doc["y1"] = target_y1;
+  doc["y2"] = target_y2;
+  doc["angle"] = angle;
   serializeJson(doc, Serial);
   Serial.println(); // 换行，便于Python端readline
 }

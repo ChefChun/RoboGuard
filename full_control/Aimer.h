@@ -3,9 +3,16 @@
 #include <Arduino.h>
 #include "Servo.h"
 #include "pid.h"
+#include"laser.h"
 
 static int TurningSpeed = 200;
 static int ForwardSpeed = 200;
+extern bool TrackingMode;
+extern bool LockedOn;
+extern int target_x1;
+extern int target_y1;
+extern int target_x2;
+extern int target_y2;
 
 class Aimer {
     Servo* horizontal;

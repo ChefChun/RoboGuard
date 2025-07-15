@@ -1,5 +1,4 @@
 #include "Aimer.h"
-
 Aimer :: Aimer(Servo* s1, Servo* s2) {
     x_ori = 90;
     y_ori = 90;
@@ -94,10 +93,12 @@ void Aimer::Fix(int x1, int y1, int x2, int y2)
         x_ori -= 5;
         setPlaneAngle(x_ori);
     }
-
-    if (y2 >= 420)
+    else
     {
-        y_ori += 5;
-        setHorizontalAngle(y_ori);
+        fire();
+        TrackingMode = true;
+        LockedOn = false;
+        target_x1 = 0;
+        target_x2 = 0;
     }
 }

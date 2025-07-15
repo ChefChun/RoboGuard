@@ -84,7 +84,8 @@ void showPatrol();
 void showAlertBlink();
 
 // 组合显示 - 常用组合
-void showMainScreen(SystemStatus status, int speed, int battery);
+void showMainScreen(SystemStatus status, int speed);
+const char* getStatusText(SystemStatus status);
 void showSensorScreen(int distL, int distM, int distR, bool tracking);
 
 // 格式化函数 - 针对16字符限制

@@ -1,11 +1,12 @@
 #include "lcd_manager.h"
 
-// 全局变量
-DisplayMode currentMode = MODE_MAIN;
-DisplayPriority currentPriority = PRIORITY_NORMAL;
-unsigned long lastDisplayUpdate = 0;
-unsigned long lastModeSwitch = 0;
-unsigned long autoSwitchInterval = 3000; // 3秒自动切换
+// 删除全局变量定义，改为extern声明
+extern DisplayMode currentMode;
+extern SystemStatus currentStatus;
+extern DisplayPriority currentPriority;
+extern unsigned long lastDisplayUpdate;
+extern unsigned long lastModeSwitch;
+extern unsigned long autoSwitchInterval; // 3秒自动切换
 
 // 显示数据
 struct DisplayData {
@@ -194,11 +195,6 @@ String getDisplayModeName(DisplayMode mode) {
 
 // 辅助函数：检查是否需要显示警报
 bool shouldShowAlert() {
-    // 检查电池电量
-    if (displayData.battery < 20) {
-        return true;
-    }
-    
     // 检查距离警报
     if (displayData.distM < 20 || displayData.distL < 15 || displayData.distR < 15) {
         return true;

@@ -2,7 +2,7 @@
 #define LCD_MANAGER_H
 
 #include "lcd_display.h"
-#include "speed_control.h"
+#include "pid.h"
 
 // 注意：DisplayMode 已在 lcd_display.h 中定义，这里不再重复定义
 // 使用 lcd_display.h 中的 DisplayMode 枚举
@@ -25,7 +25,11 @@ void switchDisplayMode();
 
 // 主界面显示
 void showMainDisplay();
-void showMainDisplayWithData(SystemStatus status, int speed, int battery);
+void showMainDisplayWithData(SystemStatus status, int speed);
+
+// 主界面显示
+void showMainScreen(SystemStatus status, int speed);
+const char* getStatusText(SystemStatus status);
 
 // 传感器显示
 void showSensorDisplay();
@@ -57,6 +61,6 @@ void clearEmergencyAlert();
 
 // 状态监控
 void updateDisplayData();
-void setDisplayData(SystemStatus status, int speed, int battery, int distL, int distM, int distR);
+void setDisplayData(SystemStatus status, int speed, int distL, int distM, int distR);
 
 #endif 

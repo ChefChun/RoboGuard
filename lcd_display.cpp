@@ -3,9 +3,9 @@
 // 创建I2C LCD对象
 LiquidCrystal_I2C lcd(LCD_I2C_ADDR, LCD_COLS, LCD_ROWS);
 
-// 全局变量
-DisplayMode currentMode = MODE_STATUS;
-SystemStatus currentStatus = STATUS_IDLE;
+// 删除全局变量定义，改为extern声明
+extern DisplayMode currentMode;
+extern SystemStatus currentStatus;
 
 // 自定义字符定义 - 简化版本
 byte batteryChar[] = {
@@ -54,7 +54,7 @@ void initLCD() {
     printText(0, 0, "RoboGuard");
     printText(0, 1, "Starting...");
     delay(2000);
-    showStatus(STATUS_IDLE);
+    // showStatus(STATUS_IDLE); // 避免初始化时依赖全局变量，防乱码
 }
 
 // 基础显示函数

@@ -9,7 +9,7 @@ const int PAUSE_TIME = 40;  // ms
 
 void autoDrive()
 {
-    if (TrackingMode == true)
+    if (TrackingMode)
     {
         Avoid();
         PoseAdjust();
@@ -33,11 +33,7 @@ void autoDrive()
 
 void blind_searching()
 {
-    if (target_x1 != target_x2)
-    {
-        LockedOn = true;
-    }
-    else if (0< angle <= 2)
+    if (0< angle <= 2)
     {
       stopAllMotors();
       delay(PAUSE_TIME);
@@ -86,5 +82,9 @@ void blind_searching()
       delay(BACK_TIME);
       turnLeftInPlace(TURN_SPEED);
       delay(TURN_TIME);
+      if (target_x1 != target_x2)
+      {
+          LockedOn = true;
+      }
     }
 }

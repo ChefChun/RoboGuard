@@ -8,6 +8,7 @@
 #include"autoDrive.h"
 #include"Aimer.h"
 #include "lcd_manager.h"
+#include "laser.h"
 
 Servo horizontal_servo;
 Servo plane_servo;
@@ -20,8 +21,8 @@ unsigned long lastStatus = 0;
 unsigned long lastAutoAction = 0;
 unsigned long current = 0;
 bool autoMode = true;
-bool TrackingMode = true;
-bool LockedOn = false;
+bool TrackingMode = false;
+bool LockedOn = true;
 const unsigned long statusInterval = 1000; // 1秒
 const unsigned long autoInterval = 200;
 
@@ -102,6 +103,7 @@ void setup() {
     pinMode(ENCODER_RB, INPUT_PULLUP);
     pinMode(LASER_PIN, OUTPUT);
 
+    digitalWrite(LASER_PIN, LOW);
 
     //attaching interruptions
     attachInterrupt(digitalPinToInterrupt(ENCODER_LF), encoderLF_ISR, RISING);
@@ -164,16 +166,6 @@ void parseJsonCommand(String jsonStr) {
     Serial.println(error.c_str());
     return;
   }
-  if (doc.containsKey("command")) {
-    String cmdStr = doc["command"];
-    handleCommand(cmdStr);
-  }
-  if (doc.containsKey("speed")) {
-    int speed = doc["speed"];
-    targetSpeed = constrain(speed, 0, 255);
-    Serial.print("setting target speed: ");
-    Serial.println(targetSpeed);
-  }
   if (doc.containsKey("score"))
   {
     score = doc["score"];
@@ -186,6 +178,17 @@ void parseJsonCommand(String jsonStr) {
       target_y2 = doc["y2"];
       angle = doc["direction"];
     }
+  }
+  else if (doc.containsKey("command")) {
+    String cmdStr = doc["command"];
+    handleCommand(cmdStr);
+  }
+  // (doc.containsKey("speed"))
+  else {
+    int speed = doc["speed"];
+    targetSpeed = constrain(speed, 0, 255);
+    Serial.print("setting target speed: ");
+    Serial.println(targetSpeed);
   }
   Serial.println("JSON command parsed successfully");
 }

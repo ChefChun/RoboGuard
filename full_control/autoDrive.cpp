@@ -22,6 +22,8 @@ void autoDrive()
         {
             blind_searching();
             platform.Scan();
+            platform.Scan();
+            platform.Scan();
             //if scanned, then LockedOn == true
         }
         else

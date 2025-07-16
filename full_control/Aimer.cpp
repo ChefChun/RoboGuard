@@ -1,7 +1,7 @@
 #include "Aimer.h"
 Aimer :: Aimer(Servo* s1, Servo* s2) {
     x_ori = 90;
-    y_ori = 90;
+    y_ori = 45;
     horizontal = s1;
     plane = s2;
 }
@@ -81,24 +81,14 @@ void Aimer::Scan()
 
 void Aimer::Fix(int x1, int y1, int x2, int y2)
 {
-    //image quality of 640*480
-    //Need resolution of the actual image captured by picamera to follow the target.
-    if (320 > x2 * 3/5 + x1 * 2/5)
-    {
-        x_ori += 5;
-        setPlaneAngle(x_ori);
-    }
-    else if (320 < x1 * 3/5 + x2 * 2/5)
-    {
-        x_ori -= 5;
-        setPlaneAngle(x_ori);
-    }
-    else
-    {
-        fire();
-        TrackingMode = true;
-        LockedOn = false;
-        target_x1 = 0;
-        target_x2 = 0;
-    }
+    Serial.print("firing");
+    y_ori = 0;
+    setHorizontalAngle(y_ori);
+    fire();
+    TrackingMode = true;
+    LockedOn = false;
+    target_x1 = 0;
+    target_x2 = 0;
+    target_y1 = 0;
+    target_y2 = 0;
 }

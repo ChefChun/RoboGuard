@@ -20,7 +20,7 @@ unsigned long lastStatus = 0;
 unsigned long lastAutoAction = 0;
 unsigned long current = 0;
 bool autoMode = true;
-bool TrackingMode = false;
+bool TrackingMode = true;
 bool LockedOn = false;
 const unsigned long statusInterval = 1000; // 1秒
 const unsigned long autoInterval = 200;
@@ -174,7 +174,7 @@ void parseJsonCommand(String jsonStr) {
     Serial.print("setting target speed: ");
     Serial.println(targetSpeed);
   }
-  if (doc.containsKey("trackingmode"))
+  if (doc.containsKey("score"))
   {
     score = doc["score"];
     if (score > 0)
@@ -184,7 +184,7 @@ void parseJsonCommand(String jsonStr) {
       target_x2 = doc["x2"];
       target_y1 = doc["y1"];
       target_y2 = doc["y2"];
-      angle = doc["angle"];
+      angle = doc["direction"];
     }
   }
   Serial.println("JSON command parsed successfully");

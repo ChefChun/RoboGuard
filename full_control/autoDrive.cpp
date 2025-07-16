@@ -13,6 +13,7 @@ void autoDrive()
     {
         Avoid();
         PoseAdjust();
+        platform.Scan();
     }
     else
     {
@@ -76,12 +77,7 @@ void blind_searching()
     }
     else
     {
-      stopAllMotors();
-      delay(PAUSE_TIME);
-      backwardInPlace(targetSpeed * 3 / 5);
-      delay(BACK_TIME);
-      turnLeftInPlace(TURN_SPEED);
-      delay(TURN_TIME);
+      forwardInPlace(targetSpeed);
       if (target_x1 != target_x2)
       {
           LockedOn = true;

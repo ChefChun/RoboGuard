@@ -21,13 +21,12 @@ void autoDrive()
         if (!LockedOn)
         {
             blind_searching();
-            platform.Scan();
-            platform.Scan();
-            platform.Scan();
+            Serial.print("searching");
             //if scanned, then LockedOn == true
         }
         else
         {
+            Serial.print("target detected");
             platform.Fix(target_x1, target_y1, target_x2, target_y2);
             platform.PoseSyn();
         }
@@ -36,7 +35,7 @@ void autoDrive()
 
 void blind_searching()
 {
-    if (0< angle <= 2)
+    if (1< angle <= 2)
     {
       stopAllMotors();
       delay(PAUSE_TIME);
@@ -61,7 +60,7 @@ void blind_searching()
       turnRightInPlace(TURN_SPEED);
       delay(TURN_TIME);
     }
-    else if (4 < angle <= 6)
+    else if (4 < angle <= 5)
     {
       stopAllMotors();
       delay(PAUSE_TIME);

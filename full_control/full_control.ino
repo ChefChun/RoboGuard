@@ -9,6 +9,7 @@
 #include"Aimer.h"
 #include "lcd_manager.h"
 #include "laser.h"
+#include "buzzer.h"
 
 Servo horizontal_servo;
 Servo plane_servo;
@@ -102,6 +103,7 @@ void setup() {
     pinMode(ENCODER_LB, INPUT_PULLUP);
     pinMode(ENCODER_RB, INPUT_PULLUP);
     pinMode(LASER_PIN, OUTPUT);
+    buzzerInit(34);
 
     digitalWrite(LASER_PIN, LOW);
 
@@ -159,7 +161,7 @@ void processSerialInput() {
 }
 
 void parseJsonCommand(String jsonStr) {
-  StaticJsonDocument<200> doc;
+  StaticJsonDocument<256> doc;
   DeserializationError error = deserializeJson(doc, jsonStr);
   if (error) {
     Serial.print("JSON parsing error: ");
@@ -211,6 +213,12 @@ void handleCommand(String cmd) {
   if (cmd == "RESUME") {
     currentStatus = STATUS_PATROL;
     Serial.println("恢复巡逻状态");
+    return;
+  }
+
+  if(cmd == "AUTO_INFO")
+  {
+    Serial.println("收到AUTO_INFO");
     return;
   }
 
@@ -268,6 +276,9 @@ void sendStatus() {
   doc["y1"] = target_y1;
   doc["y2"] = target_y2;
   doc["angle"] = angle;
+  doc["LockedOn"] = LockedOn;
+  doc["autoMode"] = autoMode;
+  doc["TrackingMode"] = TrackingMode;
   serializeJson(doc, Serial);
   Serial.println(); // 换行，便于Python端readline
 }

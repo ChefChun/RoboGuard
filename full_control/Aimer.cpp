@@ -82,6 +82,7 @@ void Aimer::Scan()
 void Aimer::Fix(int x1, int y1, int x2, int y2)
 {
     Serial.print("firing");
+    buzzerAlarm(10);
     y_ori = 0;
     setHorizontalAngle(y_ori);
     fire();

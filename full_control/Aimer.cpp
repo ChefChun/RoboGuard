@@ -1,4 +1,6 @@
 #include "Aimer.h"
+#include "buzzer.h"
+
 Aimer :: Aimer(Servo* s1, Servo* s2) {
     x_ori = 90;
     y_ori = 45;

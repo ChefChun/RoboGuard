@@ -8,8 +8,6 @@
 #include"autoDrive.h"
 #include"Aimer.h"
 #include "lcd_manager.h"
-#include "laser.h"
-#include "buzzer.h"
 
 Servo horizontal_servo;
 Servo plane_servo;
@@ -22,8 +20,8 @@ unsigned long lastStatus = 0;
 unsigned long lastAutoAction = 0;
 unsigned long current = 0;
 bool autoMode = true;
-bool TrackingMode = false;
-bool LockedOn = true;
+bool TrackingMode = true;
+bool LockedOn = false;
 const unsigned long statusInterval = 1000; // 1秒
 const unsigned long autoInterval = 200;
 
@@ -65,6 +63,10 @@ const int ENCODER_RB = 17; // 右后
 
 //laser pin
 const int LASER_PIN = 45;
+const int BUZZER_PIN = 34; // 蜂鸣器引脚
+const int DIRECTION_THRESHOLD = 5; // 允许的正对误差角度
+const int APPROACH_DURATION = 1000; // 靠近目标的时间(ms)
+const int BUZZER_DURATION = 1000; // 蜂鸣器和镭射激活时间(ms)
 
 // 唯一全局变量定义区
 
@@ -103,9 +105,10 @@ void setup() {
     pinMode(ENCODER_LB, INPUT_PULLUP);
     pinMode(ENCODER_RB, INPUT_PULLUP);
     pinMode(LASER_PIN, OUTPUT);
-    buzzerInit(34);
-
+    pinMode(BUZZER_PIN, OUTPUT); // 初始化蜂鸣器引脚
     digitalWrite(LASER_PIN, LOW);
+    digitalWrite(BUZZER_PIN, LOW);
+
 
     //attaching interruptions
     attachInterrupt(digitalPinToInterrupt(ENCODER_LF), encoderLF_ISR, RISING);
@@ -131,19 +134,36 @@ void loop()
         lastStatus = current;
     }
     if (autoMode && current - lastAutoAction >= autoInterval) {
-            autoDrive();
-            lastAutoAction = current;
-            //here autoDrive is a combination of avoiding and tracking
-            //not done yet
+        if (score > 0) {
+            if (angle < -DIRECTION_THRESHOLD) {
+                setMotorsTurnLeft(DEFAULT_SPEED / 2);
+                Serial.println("外部摄像头指令：左转对准目标");
+            } else if (angle > DIRECTION_THRESHOLD) {
+                setMotorsTurnRight(DEFAULT_SPEED / 2);
+                Serial.println("外部摄像头指令：右转对准目标");
+            } else {
+                setMotorsForward(DEFAULT_SPEED);
+                Serial.println("正对目标，靠近中...");
+                delay(APPROACH_DURATION);
+                stopAllMotors();
+                Serial.println("到达目标，激活镭射和蜂鸣器");
+                digitalWrite(LASER_PIN, HIGH);
+                digitalWrite(BUZZER_PIN, HIGH);
+                delay(BUZZER_DURATION);
+                digitalWrite(LASER_PIN, LOW);
+                digitalWrite(BUZZER_PIN, LOW);
+                score = 0;
+            }
+        } else {
+            autoDrive(); // 无目标时自动驾驶/寻迹/避障
         }
+        lastAutoAction = current;
+    }
     updatePID();
-    // 集成LCD定时刷新
     updateDisplay();
-  
     distL = readDistanceCM(TRIG_PIN_L, ECHO_PIN_L);
     distM = readDistanceCM(TRIG_PIN_M, ECHO_PIN_M);
     distR = readDistanceCM(TRIG_PIN_R, ECHO_PIN_R);
-
     setDisplayData(currentStatus, targetSpeed, distL, distM, distR);
 }
 
@@ -168,30 +188,31 @@ void parseJsonCommand(String jsonStr) {
     Serial.println(error.c_str());
     return;
   }
-  if (doc.containsKey("score"))
-  {
+
+  // 处理score等AUTO_INFO相关字段
+  if (doc.containsKey("score")) {
     score = doc["score"];
-    if (score > 0)
-    {
-      TrackingMode = false;
-      target_x1 = doc["x1"];
-      target_x2 = doc["x2"];
-      target_y1 = doc["y1"];
-      target_y2 = doc["y2"];
-      angle = doc["direction"];
-    }
+    target_x1 = doc["x1"] | 0;
+    target_x2 = doc["x2"] | 0;
+    target_y1 = doc["y1"] | 0;
+    target_y2 = doc["y2"] | 0;
+    angle = doc["direction"] | 0;
   }
-  else if (doc.containsKey("command")) {
+
+  // 处理command字段
+  if (doc.containsKey("command")) {
     String cmdStr = doc["command"];
     handleCommand(cmdStr);
   }
-  // (doc.containsKey("speed"))
-  else {
+
+  // 处理speed字段
+  if (doc.containsKey("speed")) {
     int speed = doc["speed"];
     targetSpeed = constrain(speed, 0, 255);
     Serial.print("setting target speed: ");
     Serial.println(targetSpeed);
   }
+
   Serial.println("JSON command parsed successfully");
 }
 
@@ -213,12 +234,6 @@ void handleCommand(String cmd) {
   if (cmd == "RESUME") {
     currentStatus = STATUS_PATROL;
     Serial.println("恢复巡逻状态");
-    return;
-  }
-
-  if(cmd == "AUTO_INFO")
-  {
-    Serial.println("收到AUTO_INFO");
     return;
   }
 
@@ -276,9 +291,6 @@ void sendStatus() {
   doc["y1"] = target_y1;
   doc["y2"] = target_y2;
   doc["angle"] = angle;
-  doc["LockedOn"] = LockedOn;
-  doc["autoMode"] = autoMode;
-  doc["TrackingMode"] = TrackingMode;
   serializeJson(doc, Serial);
   Serial.println(); // 换行，便于Python端readline
 }

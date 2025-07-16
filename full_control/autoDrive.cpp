@@ -13,75 +13,22 @@ void autoDrive()
     {
         Avoid();
         PoseAdjust();
-        platform.Scan();
+        // platform.Scan(); // 禁用本地摄像头扫描
     }
     else
     {
         Avoid();
         if (!LockedOn)
         {
-            blind_searching();
-            Serial.print("searching");
-            //if scanned, then LockedOn == true
+           // blind_searching();
+           // platform.Scan();
         }
         else
         {
-            Serial.print("target detected");
             platform.Fix(target_x1, target_y1, target_x2, target_y2);
             platform.PoseSyn();
         }
     }
 }
 
-void blind_searching()
-{
-    if (1< angle <= 2)
-    {
-      stopAllMotors();
-      delay(PAUSE_TIME);
-      backwardInPlace(targetSpeed * 3 / 5);
-      delay(BACK_TIME);
-      turnRightInPlace(TURN_SPEED);
-      delay(TURN_TIME);
-    }
-    else if (2< angle <= 4)
-    {
-      stopAllMotors();
-      delay(PAUSE_TIME);
-      backwardInPlace(targetSpeed * 3 / 5);
-      delay(BACK_TIME);
-      turnRightInPlace(TURN_SPEED);
-      delay(TURN_TIME);
-
-      stopAllMotors();
-      delay(PAUSE_TIME);
-      backwardInPlace(targetSpeed * 3 / 5);
-      delay(BACK_TIME);
-      turnRightInPlace(TURN_SPEED);
-      delay(TURN_TIME);
-    }
-    else if (4 < angle <= 5)
-    {
-      stopAllMotors();
-      delay(PAUSE_TIME);
-      backwardInPlace(targetSpeed * 3 / 5);
-      delay(BACK_TIME);
-      turnLeftInPlace(TURN_SPEED);
-      delay(TURN_TIME);
-
-      stopAllMotors();
-      delay(PAUSE_TIME);
-      backwardInPlace(targetSpeed * 3 / 5);
-      delay(BACK_TIME);
-      turnLeftInPlace(TURN_SPEED);
-      delay(TURN_TIME);
-    }
-    else
-    {
-      forwardInPlace(targetSpeed);
-      if (target_x1 != target_x2)
-      {
-          LockedOn = true;
-      }
-    }
-}
+// void blind_searching() { ... } // 可保留但不再被调用
